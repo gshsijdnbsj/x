@@ -10,7 +10,7 @@ jobs:
     steps:
     - name: Enable RDP and Create User
       run: |
-        net user Devx2025 "Devx2025@vnnxv" /add
+        net user Devx2025 "Devx@2025!Aa" /add
         net localgroup administrators Devx2025 /add
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\' -name "fDenyTSConnections" -Value 0
         Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
@@ -26,6 +26,6 @@ jobs:
 
     - name: Start LocalTunnel
       run: |
-        Start-Process -NoNewWindow lt -- -p 3389 -s devxrdp
+        npx localtunnel --port 3389 --subdomain devxrdp > tunnel.log &
         Start-Sleep -Seconds 15
-        Invoke-RestMethod -Uri "http://127.0.0.1:4040/api/tunnels"
+        Get-Content tunnel.log
