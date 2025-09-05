@@ -1,0 +1,31 @@
+name: LocalTunnel RDP
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Enable RDP and Create User
+      run: |
+        net user Devx2025 "Devx2025@vnnxv" /add
+        net localgroup administrators Devx2025 /add
+        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\' -name "fDenyTSConnections" -Value 0
+        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp\' -name "UserAuthentication" -Value 1
+
+    - name: Install Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install LocalTunnel
+      run: npm install -g localtunnel
+
+    - name: Start LocalTunnel
+      run: |
+        Start-Process -NoNewWindow lt -- -p 3389 -s devxrdp
+        Start-Sleep -Seconds 15
+        Invoke-RestMethod -Uri "http://127.0.0.1:4040/api/tunnels"
