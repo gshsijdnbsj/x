@@ -6,26 +6,23 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
-    - name: Enable RDP and Create User
-      run: |
-        net user Devx2025 "Devx@2025!Aa" /add
-        net localgroup administrators Devx2025 /add
-        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\' -name "fDenyTSConnections" -Value 0
-        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp\' -name "UserAuthentication" -Value 1
+      - name: Enable RDP and Create User
+        run: |
+          net user Devx2025 "Devx@2025!Aa" /add
+          net localgroup administrators Devx2025 /add
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\' -name "fDenyTSConnections" -Value 0 
 
-    - name: Install Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
 
-    - name: Install LocalTunnel
-      run: npm install -g localtunnel
+      - name: Install LocalTunnel
+        run: npm install -g localtunnel
 
-    - name: Start LocalTunnel
-      run: |
-        npx localtunnel --port 3389 --subdomain devxrdp > tunnel.log &
-        Start-Sleep -Seconds 15
-        Get-Content tunnel.log
+      - name: Start LocalTunnel
+        run: npx localtunnel --port 3389 --subdomain devxrdp | tee tunnel.log
+
+      - name: Show RDP URL
+        run: type tunnel.log
